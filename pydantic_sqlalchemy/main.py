@@ -28,9 +28,6 @@ def __column_to_field(column: Union[Column, Label]) -> Tuple[Any, FieldInfo]:
     if isinstance(column, Column) and column.default is None and not column.nullable:
         default = ...
 
-    if isinstance(column, Label) and default is None:
-        default = ...
-
     comment = getattr(column, "comment", None)
 
     return (
