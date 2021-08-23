@@ -13,6 +13,17 @@ class OrmConfig(BaseConfig):
     orm_mode = True
 
 
+def _columns(sql: Select):
+    # sqlalchemy 2.0 will use selected_columns
+    if hasattr(sql, "selected_columns"):
+        return sql.selected_columns  # type: ignore
+
+    if hasattr(sql, "columns"):
+        return sql.columns  # type: ignore
+
+    raise TypeError("Could not found columns")
+
+
 def __column_to_field(column: Union[Column, Label]) -> Tuple[Any, FieldInfo]:
     default = None
     python_type: Optional[type] = None
@@ -60,7 +71,7 @@ def sqlalchemy_select_to_pydantic(
 ) -> Type[BaseModel]:
     fields = {}
     # sqlalchemy 2.0 will use selected_columns
-    columns = getattr(sql, "selected_columns", getattr(sql, "columns", []))
+    columns = _columns(sql)
 
     for column in columns:
         # sql function has not column name
